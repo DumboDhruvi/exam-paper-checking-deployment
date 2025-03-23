@@ -1,0 +1,35 @@
+# Ignore Python virtual environments
+venv/
+env/
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore test files and folders (starting with "test")
+test*
+tests/
+*.test
+
+# Ignore temporary files
+*.tmp
+*.log
+*.bak
+.DS_Store
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.swp
+
+# Ignore dependencies (if using pipenv or poetry)
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# Ignore large files (optional)
+*.pdf
+*.csv
+*.xlsx

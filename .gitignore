@@ -1,7 +1,7 @@
 # Ignore Python virtual environments
 venv/
 env/
-
+output/
 # Ignore compiled Python files
 __pycache__/
 *.pyc

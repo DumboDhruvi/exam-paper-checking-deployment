@@ -1,20 +1,24 @@
-from ocr import pdf_to_text_with_ocr
+from ocr import *
 import re
 
 def pdf_dict(pdf_path: str, api_key : str) -> dict:
-    extracted_text = pdf_to_text_with_ocr(pdf_path, api_key, output_folder="output", dpi=200, delete_after_use=False)
+    extracted_text = pdf_to_text_with_ocr(pdf_path, api_key, output_folder="output", dpi=100, delete_after_use=False)
     return raw_to_dict(extracted_text)
 
+def pdf_dict_streamlit(pdf_path, api_key : str) -> dict:
+    extracted_text = pdf_obj_to_text_with_ocr(pdf_path, api_key, dpi=100, delete_after_use=False)
+    return raw_to_dict(extracted_text)
+
+
 def raw_to_dict(extracted_text: str) -> dict:
-    # Pattern to match "Question No X" with variations
+    # Updated pattern to match "Question No X" or "Question number X" with variations
     pattern = r"""(?ix)
         (?:question|questi[o0]n|qustion|questin|ques\.?)  # Variations of 'question'
-        \s* no \s* (\d+)                                   # 'No' followed by number
+        \s* (?:number|no)? \s* (\d+)                      # Optional 'number' or 'no', then number
     """
     
     # Find all question matches
     matches = list(re.finditer(pattern, extracted_text))
-    
     answers = {}
     
     for i in range(len(matches)):
@@ -44,8 +48,16 @@ def raw_to_dict(extracted_text: str) -> dict:
 
 #testing of raw_to_dict
 if __name__ == "__main__":
-    text = """Question No 1 Answer This is the first answer.
-    Question No 2 Answer This is the second answer.
-    Question No 3 Answer This is the third answer."""
+    text = """Extracting answers from PDF...
+API Response recived for page 0
+Question number 1 ANSWER:
+machine.        learning is a field eif - computers to
+A.I. that
+de arn
+Question number 2. ANSWER:
+WHEN A MACHINE
+OVERFITTING OCCURS      model   learns the noise,
+results on nec
+to poor"""
 
     print(raw_to_dict(text))

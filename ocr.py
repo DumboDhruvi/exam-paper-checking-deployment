@@ -1,6 +1,7 @@
-from pdf2image import convert_from_path
+from pdf2image import convert_from_path, convert_from_bytes
 import requests
 import os
+import tempfile
 
 def pdf_to_text_with_ocr(pdf_path, api_key, output_folder="output", dpi=200, delete_after_use=False):
     """
@@ -44,7 +45,7 @@ def pdf_to_text_with_ocr(pdf_path, api_key, output_folder="output", dpi=200, del
         print(f"API Response recived for page {i}")  # Debugging step
 
         if "ParsedResults" in result:
-            extracted_text += f"page{i}: " + result["ParsedResults"][0]["ParsedText"] + "\n"
+            extracted_text += result["ParsedResults"][0]["ParsedText"] + "\n"
         else:
             print(f"Error: 'ParsedResults' missing. Full response: psge mo:{i}")
             extracted_text += f"\n[Error: OCR failed for this page {i}]\n"
@@ -57,10 +58,59 @@ def pdf_to_text_with_ocr(pdf_path, api_key, output_folder="output", dpi=200, del
 
     return extracted_text
 
+def pdf_obj_to_text_with_ocr(pdf_file, api_key, dpi=100, delete_after_use=False):
+    """
+    Converts an uploaded PDF file from Streamlit into images, performs OCR, and optionally deletes images.
+
+    Parameters:
+    - pdf_file (BytesIO): Streamlit uploaded file.
+    - api_key (str): API key for OCR.Space.
+    - dpi (int): Resolution of images (default: 200).
+    - delete_after_use (bool): Whether to delete temporary images after OCR.
+
+    Returns:
+    - str: Extracted text from the PDF.
+    """
+    pdf_file.seek(0)  # Move pointer to start (important for Streamlit uploads)
+    images = convert_from_bytes(pdf_file.read(), dpi=dpi)
+    extracted_text = ""
+    temp_files = []
+
+    for i, img in enumerate(images):
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_image:
+            img.save(temp_image.name, "JPEG", quality=95)
+            temp_files.append(temp_image.name)
+
+        # Perform OCR
+        with open(temp_image.name, 'rb') as image_file:
+            try:
+                response = requests.post(
+                    "https://api.ocr.space/parse/image",
+                    files={"image": image_file},
+                    data={"apikey": api_key, "OCREngine": 2, "isTable": True},
+                )
+                response.raise_for_status()
+                result = response.json()
+
+                if "ParsedResults" in result and result["ParsedResults"]:
+                    extracted_text += f"Page {i+1}: " + result["ParsedResults"][0]["ParsedText"] + "\n"
+                else:
+                    extracted_text += f"\n[Error: OCR failed for page {i+1}]\n"
+
+            except requests.exceptions.RequestException as e:
+                extracted_text += f"\n[Error: OCR API request failed for page {i+1}]\n"
+
+    # Delete temporary images if enabled
+    if delete_after_use:
+        for temp_file in temp_files:
+            os.remove(temp_file)
+
+    return extracted_text
+
 # Example usage
 if __name__ == "__main__":
     pdf_file = r""  # Replace with your PDF file
-    api_key = ""  # Replace with your actual API key of easyocr or other api
+    api_key = "K85286034988957"  # Replace with your actual API key of easyocr or other api
 
     text = pdf_to_text_with_ocr(pdf_file, api_key)
     print("Extracted Text:\n", text)

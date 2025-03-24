@@ -46,8 +46,8 @@ class Grader:
         Grades the student's answers by comparing them to the answer key and assigns scores based on similarity.
 
         Args:
-            input_json (dict): A dictionary of student answers.
-            answer_key_json (dict): A dictionary of correct answers with max marks.
+            input_json (dict): A dictionary of student answers where keys are question identifiers and values are the answer texts.
+            answer_key_json (dict): A dictionary of correct answers with max marks, where keys are question identifiers and values are dictionaries containing "answer" and "Max Marks".
 
         Returns:
             dict: A dictionary with scores for each answer.
@@ -55,9 +55,10 @@ class Grader:
         score_dict = {}  # Dictionary to store the calculated scores
         for key, value in input_json.items():
             if key in answer_key_json:  # Ensure the question exists in the answer key
-                # Extract student's answer and the correct answer
-                student_answer = value["Answer"]
-                correct_answer = answer_key_json[key]["Answer"]
+                # Extract student's answer (value is the answer text directly)
+                student_answer = value
+                # Extract the correct answer using the correct key "answer"
+                correct_answer = answer_key_json[key]["answer"]
                 
                 # Generate embeddings for both answers
                 answer_text_embedding = self.generate_embeddings(student_answer)

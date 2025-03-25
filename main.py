@@ -52,11 +52,12 @@ def main_st(pdf_file, answer_key_file, api_key):
     # Step 1: Extract student answers from PDF
     print("Extracting answers from PDF...")
     student_answers = pdf_dict_streamlit(pdf_file, api_key)
+    print(student_answers)
 
     # Step 2: Load the answer key from the JSON file-like object
     print("Loading correct answers...")
     answer_key = json.load(answer_key_file)  # Directly read JSON from BytesIO
-
+    print(answer_key)
     # Step 3: Initialize Grader and grade answers
     print("Grading answers...")
     grader = Grader()
@@ -70,8 +71,7 @@ def main_st(pdf_file, answer_key_file, api_key):
 # Example Usage
 if __name__ == "__main__":
     pdf_file = r"test_assignments\test_ans_sheet.pdf"  # Replace with actual path
-    api_key = "K85286034988957"  # If needed for OCR
     answer_key_file = r"test_assignments\ans_key.json"  # Replace with actual path
 
-    result = main(pdf_file,answer_key_file, api_key)
-    print("Final Scores:", result)
+    #result = main(pdf_file,answer_key_file, api_key)
+    #print("Final Scores:", result)

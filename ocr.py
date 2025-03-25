@@ -114,6 +114,6 @@ if __name__ == "__main__":
     pdf_file = r""  # Replace with your PDF file
     
 
-    text = pdf_to_text_with_ocr(pdf_file, api_key)
-    print("Extracted Text:\n", text)
+    #text = pdf_to_text_with_ocr(pdf_file, api_key)
+    #print("Extracted Text:\n", text)
 
